@@ -268,9 +268,9 @@
     const totalHours = (hours + minutes / 60) * qty;
     const materialCostVal = (grams / spoolWeight) * spoolPrice * qty;
     const machineCostVal = totalHours * machineRate;
-    const laborCostVal = (laborMinutes / 60) * laborRate;
+    const laborCostVal = (laborMinutes / 60) * laborRate * qty; // labor respects quantity
 
-    const subtotalVal = materialCostVal + machineCostVal + laborCostVal;
+    const subtotalVal = materialCostVal + machineCostVal + laborCostVal; // VERIFIED subtotal
     const profitVal = subtotalVal * margin;
     const totalVal = subtotalVal + profitVal;
 
@@ -319,9 +319,10 @@ Final Price: ${total.textContent}`;
   }
 
   function resetCalc() {
-    document.querySelectorAll('input').forEach(i => i.value = i.defaultValue);
-    calculate();
-  }
+  // Reset ALL inputs to zero
+  document.querySelectorAll('input').forEach(i => i.value = 0);
+  calculate();
+}
 
   function applyPreset(type) {
     if (type === 'PLA') {
