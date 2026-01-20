@@ -253,32 +253,38 @@
 
   function calculate() {
     // --- Read inputs ---
-    const qty = +qtyEl.value;
-    const hours = +hoursEl.value;
-    const minutes = +minutesEl.value;
-    const grams = +gramsEl.value;
-    const spoolPrice = +spoolPriceEl.value;
-    const spoolWeight = +spoolWeightEl.value;
-    const machineRate = +machineRateEl.value;
-    const laborRate = +laborRateEl.value;
-    const laborMinutes = +laborMinutesEl.value;
-    const margin = +marginEl.value / 100;
+    const qty = +qtyEl.value || 0;
+    const hours = +hoursEl.value || 0;
+    const minutes = +minutesEl.value || 0;
+    const grams = +gramsEl.value || 0;
+    const spoolPrice = +spoolPriceEl.value || 0;
+    const spoolWeight = +spoolWeightEl.value || 1;
+    const machineRate = +machineRateEl.value || 0;
+    const laborRate = +laborRateEl.value || 0;
+    const laborMinutes = +laborMinutesEl.value || 0;
+    const margin = (+marginEl.value || 0) / 100;
 
+    // --- Calculations ---
     const totalHours = (hours + minutes / 60) * qty;
-    const materialCost = (grams / spoolWeight) * spoolPrice * qty;
-    const machineCost = totalHours * machineRate;
-    const laborCost = (laborMinutes / 60) * laborRate;
+    const materialCostVal = (grams / spoolWeight) * spoolPrice * qty;
+    const machineCostVal = totalHours * machineRate;
+    const laborCostVal = (laborMinutes / 60) * laborRate;
 
-    const subtotal = materialCost + machineCost + laborCost; // material + machine + labor
-    const profit = subtotal * margin; // target profit
-    const total = subtotal + profit; // FINAL PRICE // FINAL PRICE = subtotal + profit
+    const subtotalVal = materialCostVal + machineCostVal + laborCostVal;
+    const profitVal = subtotalVal * margin;
+    const totalVal = subtotalVal + profitVal;
 
+    // --- Render ---
     printTime.textContent = totalHours.toFixed(2) + ' h';
-    // Ensure all line items are calculated before rendering
-    material.textContent = `$${materialCost.toFixed(2)}`;
-    machine.textContent = `$${machineCost.toFixed(2)}`;
-    labor.textContent = `$${laborCost.toFixed(2)}`;
-    subtotal.textContent = `$${subtotal.toFixed(2)}`;
+    material.textContent = `$${materialCostVal.toFixed(2)}`;
+    machine.textContent = `$${machineCostVal.toFixed(2)}`;
+    labor.textContent = `$${laborCostVal.toFixed(2)}`;
+    subtotal.textContent = `$${subtotalVal.toFixed(2)}`;
+    profit.textContent = `$${profitVal.toFixed(2)}`;
+    total.textContent = `$${totalVal.toFixed(2)}`;
+}
+
+ `$${subtotal.toFixed(2)}`;
     profit.textContent = `$${profit.toFixed(2)}`;
     total.textContent = `$${total.toFixed(2)}`;
   }
