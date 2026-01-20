@@ -3,134 +3,255 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>3D Print Pricing Calculator</title>
+  <title>PrintsByPug – Print Pricing Calculator</title>
   <style>
+    :root {
+      --bg: #0b0f1a;
+      --panel: #111827;
+      --panel-soft: #0f172a;
+      --accent: #f59e0b; /* PrintsByPug gold */
+      --accent-soft: rgba(245, 158, 11, 0.15);
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --success: #22c55e;
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
-      background: #0b1220;
-      color: #e5e7eb;
       margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: radial-gradient(circle at top, #111827, var(--bg));
+      color: var(--text);
       padding: 2rem;
     }
-    h1 {
+
+    header {
+      max-width: 1200px;
+      margin: 0 auto 2rem auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      margin: 0;
+    }
+
+    header span {
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 2rem;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--panel), var(--panel-soft));
+      border-radius: 18px;
+      padding: 1.75rem;
+      box-shadow: 0 25px 60px rgba(0,0,0,.5);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 1.25rem;
       margin-bottom: 1rem;
     }
-    .container {
+
+    .grid {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 2rem;
-      max-width: 1100px;
-      margin: auto;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem 1.25rem;
     }
-    .card {
-      background: #111827;
-      border-radius: 12px;
-      padding: 1.5rem;
-      box-shadow: 0 10px 30px rgba(0,0,0,.4);
-    }
+
     label {
-      display: block;
-      font-size: .9rem;
-      margin-top: 1rem;
-      opacity: .9;
+      font-size: .8rem;
+      color: var(--muted);
     }
+
     input {
       width: 100%;
-      padding: .6rem;
-      border-radius: 8px;
-      border: none;
-      margin-top: .3rem;
+      margin-top: .35rem;
+      padding: .65rem .75rem;
+      border-radius: 10px;
+      border: 1px solid #020617;
       background: #020617;
-      color: #fff;
+      color: var(--text);
+      outline: none;
     }
-    .result {
+
+    input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .estimate-row {
       display: flex;
       justify-content: space-between;
-      margin: .4rem 0;
+      padding: .5rem 0;
+      border-bottom: 1px dashed rgba(255,255,255,.08);
+      font-size: .95rem;
     }
-    .total {
-      margin-top: 1.5rem;
-      font-size: 1.5rem;
-      font-weight: bold;
-      color: #22c55e;
+
+    .estimate-row:last-child { border-bottom: none; }
+
+    .estimate-row span:last-child {
+      font-weight: 600;
+    }
+
+    .final {
+      margin-top: 1.75rem;
+      padding: 1.25rem;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent-soft), rgba(34,197,94,.15));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .final span {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--success);
+    }
+
+    footer {
+      max-width: 1200px;
+      margin: 2rem auto 0 auto;
+      text-align: center;
+      color: var(--muted);
+      font-size: .8rem;
+    }
+
+    @media (max-width: 900px) {
+      .container {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
 <body>
-  <h1>3D Print Pricing Calculator</h1>
-  <div class="container">
-    <div class="card">
-      <h2>Job Inputs</h2>
-      <label>Quantity<input id="qty" type="number" value="1"></label>
-      <label>Print time (hours)<input id="hours" type="number" value="5"></label>
-      <label>Print time (minutes)<input id="minutes" type="number" value="0"></label>
-      <label>Filament used (grams)<input id="grams" type="number" value="430"></label>
-      <label>Spool price ($)<input id="spoolPrice" type="number" value="15"></label>
-      <label>Spool weight (grams)<input id="spoolWeight" type="number" value="1000"></label>
-      <label>Machine rate ($/hr)<input id="machineRate" type="number" value="1"></label>
-      <label>Labor rate ($/hr)<input id="laborRate" type="number" value="4"></label>
-      <label>Active labor (minutes)<input id="laborMinutes" type="number" value="30"></label>
-      <label>Profit margin (%)<input id="margin" type="number" value="30"></label>
-    </div>
 
-    <div class="card">
-      <h2>Estimate</h2>
-      <div class="result"><span>Total print time</span><span id="printTime"></span></div>
-      <div class="result"><span>Material cost</span><span id="material"></span></div>
-      <div class="result"><span>Machine time</span><span id="machine"></span></div>
-      <div class="result"><span>Active labor</span><span id="labor"></span></div>
-      <div class="result"><span>Base subtotal</span><span id="subtotal"></span></div>
-      <div class="result"><span>Profit</span><span id="profit"></span></div>
-      <div class="total">Final Price: <span id="total"></span></div>
+<header>
+  <h1><span>PrintsByPug</span> Pricing Calculator</h1>
+  <div>Instant Quote Tool</div>
+</header>
+
+<div class="container">
+  <div class="card">
+    <h2>Job Inputs</h2>
+    <div class="grid">
+      <label>Quantity
+        <input id="qty" type="number" value="1">
+      </label>
+      <label>Filament Used (g)
+        <input id="grams" type="number" value="430">
+      </label>
+
+      <label>Print Time (hours)
+        <input id="hours" type="number" value="5">
+      </label>
+      <label>Print Time (minutes)
+        <input id="minutes" type="number" value="0">
+      </label>
+
+      <label>Spool Price ($)
+        <input id="spoolPrice" type="number" value="15">
+      </label>
+      <label>Spool Weight (g)
+        <input id="spoolWeight" type="number" value="1000">
+      </label>
+
+      <label>Machine Rate ($/hr)
+        <input id="machineRate" type="number" value="1">
+      </label>
+      <label>Labor Rate ($/hr)
+        <input id="laborRate" type="number" value="4">
+      </label>
+
+      <label>Active Labor (minutes)
+        <input id="laborMinutes" type="number" value="30">
+      </label>
+      <label>Profit Margin (%)
+        <input id="margin" type="number" value="30">
+      </label>
     </div>
   </div>
 
-  <script>
-    const inputs = document.querySelectorAll('input');
-    inputs.forEach(i => i.addEventListener('input', calculate));
+  <div class="card">
+    <h2>Estimate</h2>
 
-    function calculate() {
-      const qty = +qtyEl.value;
-      const hours = +hoursEl.value;
-      const minutes = +minutesEl.value;
-      const grams = +gramsEl.value;
-      const spoolPrice = +spoolPriceEl.value;
-      const spoolWeight = +spoolWeightEl.value;
-      const machineRate = +machineRateEl.value;
-      const laborRate = +laborRateEl.value;
-      const laborMinutes = +laborMinutesEl.value;
-      const margin = +marginEl.value / 100;
+    <div class="estimate-row"><span>Total Print Time</span><span id="printTime"></span></div>
+    <div class="estimate-row"><span>Material Cost</span><span id="material"></span></div>
+    <div class="estimate-row"><span>Machine Time</span><span id="machine"></span></div>
+    <div class="estimate-row"><span>Active Labor</span><span id="labor"></span></div>
+    <div class="estimate-row"><span>Base Subtotal</span><span id="subtotal"></span></div>
+    <div class="estimate-row"><span>Profit</span><span id="profit"></span></div>
 
-      const totalHours = (hours + minutes / 60) * qty;
-      const materialCost = (grams / spoolWeight) * spoolPrice * qty;
-      const machineCost = totalHours * machineRate;
-      const laborCost = (laborMinutes / 60) * laborRate;
+    <div class="final">
+      <div>Final Price</div>
+      <span id="total"></span>
+    </div>
+  </div>
+</div>
 
-      const subtotal = materialCost + machineCost + laborCost;
-      const profit = subtotal * margin;
-      const total = subtotal + profit;
+<footer>
+  © PrintsByPug — Pricing estimates only. Final quotes may vary.
+</footer>
 
-      printTime.textContent = totalHours.toFixed(2) + ' h';
-      material.textContent = `$${materialCost.toFixed(2)}`;
-      machine.textContent = `$${machineCost.toFixed(2)}`;
-      labor.textContent = `$${laborCost.toFixed(2)}`;
-      subtotal.textContent = `$${subtotal.toFixed(2)}`;
-      profit.textContent = `$${profit.toFixed(2)}`;
-      total.textContent = `$${total.toFixed(2)}`;
-    }
+<script>
+  const inputs = document.querySelectorAll('input');
+  inputs.forEach(i => i.addEventListener('input', calculate));
 
-    const qtyEl = document.getElementById('qty');
-    const hoursEl = document.getElementById('hours');
-    const minutesEl = document.getElementById('minutes');
-    const gramsEl = document.getElementById('grams');
-    const spoolPriceEl = document.getElementById('spoolPrice');
-    const spoolWeightEl = document.getElementById('spoolWeight');
-    const machineRateEl = document.getElementById('machineRate');
-    const laborRateEl = document.getElementById('laborRate');
-    const laborMinutesEl = document.getElementById('laborMinutes');
-    const marginEl = document.getElementById('margin');
+  function calculate() {
+    const qty = +qtyEl.value;
+    const hours = +hoursEl.value;
+    const minutes = +minutesEl.value;
+    const grams = +gramsEl.value;
+    const spoolPrice = +spoolPriceEl.value;
+    const spoolWeight = +spoolWeightEl.value;
+    const machineRate = +machineRateEl.value;
+    const laborRate = +laborRateEl.value;
+    const laborMinutes = +laborMinutesEl.value;
+    const margin = +marginEl.value / 100;
 
-    calculate();
-  </script>
+    const totalHours = (hours + minutes / 60) * qty;
+    const materialCost = (grams / spoolWeight) * spoolPrice * qty;
+    const machineCost = totalHours * machineRate;
+    const laborCost = (laborMinutes / 60) * laborRate;
+
+    const subtotal = materialCost + machineCost + laborCost;
+    const profit = subtotal * margin;
+    const total = subtotal + profit;
+
+    printTime.textContent = totalHours.toFixed(2) + ' h';
+    material.textContent = `$${materialCost.toFixed(2)}`;
+    machine.textContent = `$${machineCost.toFixed(2)}`;
+    labor.textContent = `$${laborCost.toFixed(2)}`;
+    subtotal.textContent = `$${subtotal.toFixed(2)}`;
+    profit.textContent = `$${profit.toFixed(2)}`;
+    total.textContent = `$${total.toFixed(2)}`;
+  }
+
+  const qtyEl = document.getElementById('qty');
+  const hoursEl = document.getElementById('hours');
+  const minutesEl = document.getElementById('minutes');
+  const gramsEl = document.getElementById('grams');
+  const spoolPriceEl = document.getElementById('spoolPrice');
+  const spoolWeightEl = document.getElementById('spoolWeight');
+  const machineRateEl = document.getElementById('machineRate');
+  const laborRateEl = document.getElementById('laborRate');
+  const laborMinutesEl = document.getElementById('laborMinutes');
+  const marginEl = document.getElementById('margin');
+
+  calculate();
+</script>
 </body>
 </html>
