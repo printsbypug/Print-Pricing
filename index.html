@@ -135,6 +135,38 @@
         grid-template-columns: 1fr;
       }
     }
+    .preset {
+      background: #020617;
+      border: 1px solid rgba(255,255,255,.1);
+      color: var(--text);
+      padding: .5rem .9rem;
+      border-radius: 999px;
+      cursor: pointer;
+      font-size: .8rem;
+    }
+
+    .preset:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+    .action {
+      background: linear-gradient(180deg, #020617, #020617);
+      border: 1px solid rgba(255,255,255,.15);
+      color: var(--text);
+      padding: .55rem 1rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: .85rem;
+    }
+
+    .action:hover {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px var(--accent-soft);
+    }
+
+    .action:active {
+      transform: scale(.98);
+    }
   </style>
 </head>
 <body>
@@ -147,6 +179,11 @@
 <div class="container">
   <div class="card">
     <h2>Job Inputs</h2>
+    <div style="margin-bottom:1rem; display:flex; gap:.5rem; flex-wrap:wrap;">
+      <button class="preset" onclick="applyPreset('PLA')">PLA</button>
+      <button class="preset" onclick="applyPreset('PETG')">PETG</button>
+      <button class="preset" onclick="applyPreset('ABS')">ABS</button>
+    </div>
     <div class="grid">
       <label>Quantity
         <input id="qty" type="number" value="1">
@@ -192,12 +229,16 @@
     <div class="estimate-row"><span>Material Cost</span><span id="material"></span></div>
     <div class="estimate-row"><span>Machine Time</span><span id="machine"></span></div>
     <div class="estimate-row"><span>Active Labor</span><span id="labor"></span></div>
-    <div class="estimate-row"><span>Base Subtotal</span><span id="subtotal"></span></div>
-    <div class="estimate-row"><span>Profit</span><span id="profit"></span></div>
+    <div class="estimate-row"><span>Base Subtotal</span><span id="subtotal">$0.00</span></div>
+    <div class="estimate-row"><span>Profit</span><span id="profit">$0.00</span></div>
 
+    <div style="display:flex; gap:.5rem; margin-bottom:1rem; flex-wrap:wrap;">
+      <button class="action" onclick="copyQuote()">Copy Quote</button>
+      <button class="action" onclick="resetCalc()">Reset</button>
+    </div>
     <div class="final">
       <div>Final Price</div>
-      <span id="total"></span>
+      <span id="total">$0.00</span>
     </div>
   </div>
 </div>
@@ -211,6 +252,7 @@
   inputs.forEach(i => i.addEventListener('input', calculate));
 
   function calculate() {
+    // --- Read inputs ---
     const qty = +qtyEl.value;
     const hours = +hoursEl.value;
     const minutes = +minutesEl.value;
@@ -227,11 +269,12 @@
     const machineCost = totalHours * machineRate;
     const laborCost = (laborMinutes / 60) * laborRate;
 
-    const subtotal = materialCost + machineCost + laborCost;
-    const profit = subtotal * margin;
-    const total = subtotal + profit;
+    const subtotal = materialCost + machineCost + laborCost; // material + machine + labor
+    const profit = subtotal * margin; // target profit
+    const total = subtotal + profit; // FINAL PRICE // FINAL PRICE = subtotal + profit
 
     printTime.textContent = totalHours.toFixed(2) + ' h';
+    // Ensure all line items are calculated before rendering
     material.textContent = `$${materialCost.toFixed(2)}`;
     machine.textContent = `$${machineCost.toFixed(2)}`;
     labor.textContent = `$${laborCost.toFixed(2)}`;
@@ -252,6 +295,46 @@
   const marginEl = document.getElementById('margin');
 
   calculate();
+
+  function copyQuote() {
+    const text = `PrintsByPug Quote
+----------------------
+Quantity: ${qtyEl.value}
+Total Print Time: ${printTime.textContent}
+Material Cost: ${material.textContent}
+Machine Cost: ${machine.textContent}
+Labor Cost: ${labor.textContent}
+Subtotal: ${subtotal.textContent}
+Profit: ${profit.textContent}
+Final Price: ${total.textContent}`;
+
+    navigator.clipboard.writeText(text);
+    alert('Quote copied to clipboard');
+  }
+
+  function resetCalc() {
+    document.querySelectorAll('input').forEach(i => i.value = i.defaultValue);
+    calculate();
+  }
+
+  function applyPreset(type) {
+    if (type === 'PLA') {
+      spoolPriceEl.value = 15;
+      spoolWeightEl.value = 1000;
+      machineRateEl.value = 1;
+    }
+    if (type === 'PETG') {
+      spoolPriceEl.value = 20;
+      spoolWeightEl.value = 1000;
+      machineRateEl.value = 1.2;
+    }
+    if (type === 'ABS') {
+      spoolPriceEl.value = 22;
+      spoolWeightEl.value = 1000;
+      machineRateEl.value = 1.4;
+    }
+    calculate();
+  }
 </script>
 </body>
 </html>
